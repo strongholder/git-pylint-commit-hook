@@ -15,6 +15,7 @@ ExecutionResult = collections.namedtuple(
     'status, stdout, stderr'
 )
 
+FailOnPattern = ".*missing-docstring.*"
 
 def _futurize_str(obj):
     if isinstance(obj, bytes):
@@ -52,7 +53,7 @@ def _current_stash():
 def _get_list_of_committed_files():
     """ Returns a list of files about to be commited. """
     files = []
-    # pylint: disable=E1103
+
     diff_index_cmd = 'git diff-index --cached %s' % _current_commit()
     output = subprocess.check_output(
         diff_index_cmd.split()
@@ -270,11 +271,16 @@ def check_repo(
             # Verify the score
             score = _parse_score(out)
             ignored = _check_ignore(out)
-            if ignored or score >= float(limit):
-                status = 'PASSED'
-            else:
-                status = 'FAILED'
+
+            if re.findall(FailOnPattern, out):
+                status = "FAILED"
                 all_filed_passed = False
+            else:
+                if ignored or score >= float(limit):
+                    status = 'PASSED'
+                else:
+                    status = 'FAILED'
+                    all_filed_passed = False
 
             # Add some output
             print('{:.2}/10.00\t{}{}'.format(
