@@ -6,7 +6,7 @@ import os
 
 
 if __name__ == '__main__':
-    cmd = ["git-pylint-commit-hook", "--pylintrc", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "pylint.rc")), "--limit", "8", "--always-show-violations"]
+    cmd = ["git-pylint-commit-hook", "--limit", "8", "--always-show-violations"]
     p = subprocess.Popen(cmd)
     p.communicate()
     sys.exit(p.returncode)
